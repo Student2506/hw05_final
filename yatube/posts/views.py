@@ -1,0 +1,114 @@
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from .models import Post, User
+from .forms import CommentForm, PostForm
+from django.shortcuts import render, redirect, get_object_or_404
+
+
+def index(request):
+    post_list = Post.objects.select_related('author').all()
+    paginator = Paginator(post_list, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    return render(request, "index.html", {"page": page})
+
+
+def profile(request, username):
+    user_object = get_object_or_404(User, username=username)
+    post_list = user_object.posts.select_related('author').all()
+
+    paginator = Paginator(post_list, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    form = CommentForm()
+
+    return render(
+        request,
+        'profile.html',
+        {'username': user_object,
+         'page': page,
+         'form': form,
+         'is_comment': False}
+    )
+
+
+def post_view(request, username, post_id):
+    user_object = get_object_or_404(User, username=username)
+    post_object = get_object_or_404(Post, author=user_object, id=post_id)
+    comments = post_object.comments.all()
+
+    form = CommentForm()
+
+    return render(request, 'post.html',
+                  {'username': user_object,
+                   'post': post_object,
+                   'comments': comments,
+                   'form': form,
+                   'is_comment': True})
+
+
+@login_required
+def new_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST,
+                        files=request.FILES or None)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('index')
+    else:
+        form = PostForm()
+
+    return render(request,
+                  'new_edit_post.html',
+                  {'form': form, 'is_edit': False})
+
+
+@login_required
+def post_edit(request, username, post_id):
+    post_object = get_object_or_404(Post, pk=post_id)
+
+    if post_object.author != request.user:
+        return redirect('post', username=username, post_id=post_object.id)
+
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None,
+                    instance=post_object)
+    if form.is_valid():
+        form.save()
+        return redirect('post',
+                        post_object.author.username,
+                        post_object.id)
+
+    return render(request,
+                  'new_edit_post.html',
+                  {'form': form, 'is_edit': True})
+
+
+def page_not_found(request, exception):
+    return render(request, "misc/404.html", {"path": request.path}, status=404)
+
+
+def server_error(request):
+    return render(request, "misc/500.html", status=500)
+
+
+def add_comment(request, username, post_id):
+    post_author = get_object_or_404(User, username=username)
+    post_object = get_object_or_404(Post, author=post_author, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST or None)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post_object
+            comment.save()
+            return redirect('post',
+                            post_author.username,
+                            post_object.id)
+
+    return redirect('post',
+                    post_author.username,
+                    post_object.id)

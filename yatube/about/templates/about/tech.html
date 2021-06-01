@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Об технологиях{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+{% load user_filters %}
+  <main role="main" class="container">
+    <div class="row">
+      <!-- Левый вспомогательный блок -->
+      <div class="col-md-3 mb-3 mt-1">
+        <div class="card">
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div class="h3">
+                  О технологиях
+                </div> 
+              </li>
+              <li class="list-group-item">
+                <div class="h6 text-muted">
+                  Эта страница об использованных при разработке сайта технологиях.
+                </div>
+              </li>
+            </ul>                                               
+          </div>                    
+        </div>                
+      </div>
+      <!-- Тело страницы -->
+      <div class="col-md-9">
+        <div class="card-body">                    
+          <div class="card-text">
+            <p>При разработке данного сайта были использованы:</p>
+            <p>
+              <ol>
+                <li>Ноутбук марки Sony</li>
+                <li>Python</li>
+                <li>HTML5</li>
+                <li>Bootstrap (CSS, JS)</li>
+                <li>Django</li>
+              </ol>
+            </p>
+            <p>В разработке использовались:</p>
+            <p>
+              <ul>
+                <li>Ресурсы Yandex-Практикума</li>
+                <li>Visual Studio Code&#174;</li>
+                <li>Notepad++</li>
+                <li>Slack</li>
+                <li>Zoom ;-)</li>
+                <li>Руки и голова</li>
+              </ul>
+            </p>
+          </div>                    
+        </div>                
+      </div>            
+    </div>        
+  </main>
+{% endblock %} 

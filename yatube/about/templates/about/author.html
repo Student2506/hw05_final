@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+{% load user_filters %}
+  <main role="main" class="container">
+    <div class="row">
+      <!-- Левый вспомогательный блок -->
+      <div class="col-md-3 mb-3 mt-1">
+        <div class="card">
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div class="h3">
+                  Об авторе
+                </div> 
+              </li>
+              <li class="list-group-item">
+                <div class="h6 text-muted">
+                  Эта страница о создателе данного сайта
+                </div>
+              </li>
+            </ul>                                               
+          </div>                    
+        </div>                
+      </div>
+      <!-- Тело страницы -->
+      <div class="col-md-9">
+        <div class="card-body">                    
+          <div class="card-text">
+            <h3>Достижения:</h3>
+            <p>
+              <ul>
+                <li><span style="color:red">Красный</span> диплом по специльности Прикладная информатика в экономике</li>
+                <li>Опыт работы в сфере IT c 2002 года</li>
+                <li>Опыт работы c HTML, JavaScript, PHP, Perl, а также С/С++/С# и пр.</li>
+                <li>Свободно говорю на английском и французском языках.</li>
+              </ul>
+            </p>
+            <h3>Вдохновляет:</h3>
+            <p>
+              <ul>
+                <li>Музыка (танцевальная, альтернатива)</li>
+                <li>Если получается то, что хотелось</li>
+              </ul>
+            </p>
+            <h3>Прочее:</h3>
+            <p>Аккаунт на github: <a href="https://github.com/Student2506/" target=”_blank”>Student2506</a></p>
+            <p>Аккаунт на hh.ru: <a href="https://hh.ru/resume/6c617808ff083ccce30039ed1f454267545659" target=”_blank”>Мое резюме</a></p>
+          </div>                    
+        </div>                
+      </div>            
+    </div>        
+  </main>
+{% endblock %} 
