@@ -164,6 +164,14 @@ class PostPagesTests(TestCase):
         }
         for url, url_reverse in pages_to_check.items():
             with self.subTest(url=url):
+                # start_time = time.time()
                 response = self.authorized_client.get(url_reverse)
+                # execution_time = round(time.time() - start_time, 4)
+
+                # start_time2 = time.time()
+                # response2 = self.authorized_client.get(url_reverse)
+                # execution_time2 = round(time.time() - start_time2, 4)
+                # self.assertTrue(execution_time > execution_time2)
+                # self.assertEqual(execution_time, execution_time2)
                 result = response.context['block'].nodelist[1]
                 self.assertIsInstance(result, CacheNode)

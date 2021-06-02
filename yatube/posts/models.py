@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models.deletion import DO_NOTHING
 from groups.models import Group
 
 
@@ -46,3 +47,10 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text[:15]
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=DO_NOTHING,
+                             related_name='follower')
+    author = models.ForeignKey(User, on_delete=DO_NOTHING,
+                               related_name='following')
