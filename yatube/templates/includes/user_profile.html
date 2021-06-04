@@ -20,6 +20,7 @@
       </div>
     </li>
     <li class="list-group-item">
+      {% if user.is_authenticated %}
       {% if following %}
         <a
           class="btn btn-lg btn-light"
@@ -32,6 +33,7 @@
           href="{% url 'profile_follow' username.username %}" role="button">
           Подписаться
         </a>
+      {% endif %}
       {% endif %}
     </li>
   </ul>

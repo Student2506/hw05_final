@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+import time
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -9,7 +10,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
 from pytils.translit import slugify
-from django.templatetags.cache import CacheNode
+from django.core.cache import cache
 
 
 from posts.models import Post
@@ -158,20 +159,32 @@ class PostPagesTests(TestCase):
                     self.assertIsInstance(form_field, expected)
 
     def test_post_caching(self):
-        """Проверка, что посты кэшируются"""
+        """Проверка, что кэш есть"""
+        for i in range(12):
+            Post.objects.create(
+                text='Тестирование нового поста111' + str(i),
+                author=self.user
+            )
+            last_post = 'Тестирование нового поста111' + str(i)
+
         pages_to_check = {
             'index': reverse('index'),
         }
         for url, url_reverse in pages_to_check.items():
-            with self.subTest(url=url):
-                # start_time = time.time()
+            with self.subTest(url=url, url_reverse=url_reverse):
+                cache.clear()
+                cache.set('foo', 'bar', 10)
+                var = cache.get('foo')
+                self.assertEqual(var, 'bar')
+                time.sleep(11)
+                var2 = cache.get('foo')
+                self.assertIsNone(var2)
                 response = self.authorized_client.get(url_reverse)
-                # execution_time = round(time.time() - start_time, 4)
-
-                # start_time2 = time.time()
-                # response2 = self.authorized_client.get(url_reverse)
-                # execution_time2 = round(time.time() - start_time2, 4)
-                # self.assertTrue(execution_time > execution_time2)
-                # self.assertEqual(execution_time, execution_time2)
-                result = response.context['block'].nodelist[1]
-                self.assertIsInstance(result, CacheNode)
+                self.assertTrue(last_post.encode() in response.content)
+                caching_test = 'Кэш в действии'
+                Post.objects.create(
+                    text=caching_test,
+                    author=self.user
+                )
+                response = self.authorized_client.get(url_reverse)
+                self.assertFalse(caching_test.encode() in response.content)

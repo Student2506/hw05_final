@@ -23,9 +23,10 @@ def profile(request, username):
     page = paginator.get_page(page_number)
     form = CommentForm()
     is_subscribed = False
-    for follow in request.user.follower.all():
-        if user_object.username == follow.author.username:
-            is_subscribed = True
+    if request.user.is_authenticated:
+        for follow in request.user.follower.all():
+            if user_object.username == follow.author.username:
+                is_subscribed = True
 
     return render(
         request,
