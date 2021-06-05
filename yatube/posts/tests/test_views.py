@@ -92,7 +92,8 @@ class PostPagesTests(TestCase):
                     'post_id': self.post.pk}): 'post.html',
             reverse('post_edit', kwargs={'username': self.user.username,
                     'post_id': self.post.pk}): 'new_edit_post.html',
-            reverse('new_post'): 'new_edit_post.html'
+            reverse('new_post'): 'new_edit_post.html',
+            reverse('follow_index'): 'follow.html',
         }
         for url, template in templates_view.items():
             with self.subTest(url=url):
@@ -100,7 +101,10 @@ class PostPagesTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_post_appears_on_appropriate_pages(self):
-        """Проверка, что пост отображется на главной и в сообществе"""
+        """
+        Проверка, что пост c картинкой отображется на главной,
+        в профиле, в группе и в сообществе
+        """
         pages_to_check = {
             'index': reverse('index'),
             'slug': reverse('slug', kwargs={'slug': slugify('Новая группа')}),
@@ -179,6 +183,7 @@ class PostPagesTests(TestCase):
                 time.sleep(11)
                 var2 = cache.get('foo')
                 self.assertIsNone(var2)
+
                 response = self.authorized_client.get(url_reverse)
                 self.assertTrue(last_post.encode() in response.content)
                 caching_test = 'Кэш в действии'

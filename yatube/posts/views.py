@@ -27,6 +27,8 @@ def profile(request, username):
         for follow in request.user.follower.all():
             if user_object.username == follow.author.username:
                 is_subscribed = True
+    followers = Follow.objects.filter(author=user_object.pk).count()
+    follows = Follow.objects.filter(user=user_object.pk).count()
 
     return render(
         request,
@@ -35,7 +37,10 @@ def profile(request, username):
          'page': page,
          'form': form,
          'is_comment': False,
-         'following': is_subscribed}
+         'following': is_subscribed,
+         'followers': followers,
+         'follows': follows
+         }
     )
 
 
@@ -46,12 +51,17 @@ def post_view(request, username, post_id):
 
     form = CommentForm()
 
+    followers = Follow.objects.filter(author=user_object.pk).count()
+    follows = Follow.objects.filter(user=user_object.pk).count()
+
     return render(request, 'post.html',
                   {'username': user_object,
                    'post': post_object,
                    'comments': comments,
                    'form': form,
-                   'is_comment': True})
+                   'is_comment': True,
+                   'followers': followers,
+                   'follows': follows})
 
 
 @login_required

@@ -1,7 +1,7 @@
 from django.test import Client, TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from posts.models import Post, Group
+from posts.models import Post, Group, Follow
 from http import HTTPStatus
 from pytils.translit import slugify
 
@@ -80,7 +80,11 @@ class PostUrlTest(TestCase):
             'post_edit': {
                 'username': self.user.username, 'post_id': self.post.pk
             },
-            'new_post': {}
+            'new_post': {},
+            'follow_index': {},
+            'add_comment': {
+                'username': self.user.username, 'post_id': self.post.pk
+            }
         }
 
         for url_reverse, kwargs in authorized_users_url.items():
@@ -97,7 +101,15 @@ class PostUrlTest(TestCase):
                 response = self.authorized_client.get(
                     reverse(url_reverse, kwargs=kwargs),
                 )
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+                if url_reverse == 'add_comment':
+                    self.assertRedirects(
+                        response, reverse(
+                            'post', kwargs={'username': self.user.username,
+                                            'post_id': self.post.pk}
+                        )
+                    )
+                else:
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_urls_use_correct_template(self):
         """Проверка использования шаблона"""
@@ -114,6 +126,7 @@ class PostUrlTest(TestCase):
             reverse('slug', kwargs={'slug': self.group.slug}): 'group.html',
             reverse('about:author'): 'about/author.html',
             reverse('about:tech'): 'about/tech.html',
+            reverse('follow_index'): 'follow.html'
         }
 
         for url_reverse, template in url_template_list.items():
@@ -133,3 +146,40 @@ class PostUrlTest(TestCase):
             with self.subTest(url_reverse=url_reverse, error_code=error_code):
                 response = self.guest_client.get(url_reverse)
                 self.assertEqual(response.status_code, error_code)
+
+    def test_user_is_able_to_follow_unfollow_other(self):
+        """Проверка функционала подисок"""
+
+        url_list = {
+            'follow': reverse('profile_follow',
+                              kwargs={'username': self.other_user.username}),
+            'unfollow': reverse('profile_unfollow',
+                                kwargs={'username': self.other_user.username})
+        }
+
+        for operation, url_reverse in url_list.items():
+            with self.subTest(url_reverse=url_reverse, operation=operation):
+                follow_cnt = Follow.objects.filter(user=self.user).count()
+                response = self.authorized_client.get(url_reverse, follow=True)
+                if operation == 'follow':
+                    self.assertEqual(
+                        Follow.objects.filter(
+                            author=self.other_user,
+                            user=self.user
+                        ).count(),
+                        follow_cnt + 1
+                    )
+                elif operation == 'unfollow':
+                    self.assertEqual(
+                        Follow.objects.filter(
+                            author=self.other_user,
+                            user=self.user
+                        ).count(),
+                        follow_cnt - 1
+                    )
+                self.assertRedirects(
+                    response,
+                    reverse('profile',
+                            kwargs={'username': self.other_user.username}
+                            )
+                )
