@@ -153,8 +153,8 @@ def profile_follow(request, username):
     author_obj = get_object_or_404(User, username=username)
     if request.user == author_obj:
         return(redirect('profile', username))
-    if Follow.objects.filter(user=request.user,
-                             author=author_obj).count() == 0:
+    if not Follow.objects.filter(user=request.user,
+                                 author=author_obj).exists():
         Follow.objects.create(user=request.user, author=author_obj)
 
     return(redirect('profile', username))
