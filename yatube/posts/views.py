@@ -100,7 +100,7 @@ def post_edit(request, username, post_id):
 
     return render(request,
                   'new_edit_post.html',
-                  {'form': form, 'is_edit': True})
+                  {'form': form, 'post': post_object, 'is_edit': True})
 
 
 def page_not_found(request, exception):
@@ -151,8 +151,12 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author_obj = get_object_or_404(User, username=username)
-    if request.user != author_obj:
+    if request.user == author_obj:
+        return(redirect('profile', username))
+    if Follow.objects.filter(user=request.user,
+                             author=author_obj).count() == 0:
         Follow.objects.create(user=request.user, author=author_obj)
+
     return(redirect('profile', username))
 
 

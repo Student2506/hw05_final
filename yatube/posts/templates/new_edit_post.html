@@ -6,6 +6,28 @@
 
 <div class="row justify-content-center">
     <div class="col-md-8 p-5">
+        {% if is_edit %}
+        <div class="card">
+            <div class="card-header">Текущий пост</div>
+        <div class="card mb-3 mt-1 shadow-sm">
+            {% include 'thumbnail.html' %}
+              <div class="card-body">
+                <p class="card-text">
+                  <a name="post_{{ post.id }}" href="{% url 'profile' post.author.username %}">
+                    <strong class="d-block text-gray-dark">@{{ post.author }}</strong>
+                  </a>
+                  {{ post.text|linebreaksbr }}
+                </p>
+          
+                {% if post.group %}
+                  <a class="card-link" muted" href="{% url 'slug' post.group.slug %}">
+                    <strong class="d-block text-gray-dark">#{{ post.group.title }}</strong>
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+        </div>
+        {% endif %}
         <div class="card">
             <div class="card-header">{% if is_edit %}Редактировать{% else %}Добавить{% endif %} пост</div>
             <div class="card-body">
