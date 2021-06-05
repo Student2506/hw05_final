@@ -193,3 +193,49 @@ class PostPagesTests(TestCase):
                 )
                 response = self.authorized_client.get(url_reverse)
                 self.assertFalse(caching_test.encode() in response.content)
+
+    def test_post_appear_on_follow_only(self):
+        """Проверка, что пост появляется только у подписанных"""
+        follow_user = User.objects.create(username='WillFollow')
+        unfollow_user = User.objects.create(username='Dontcare')
+
+        client_follow = Client()
+        client_follow.force_login(follow_user)
+        client_follow.get(reverse('profile_follow',
+                          kwargs={'username': self.user.username}),
+                          follow=True)
+        client_unfollow = Client()
+        client_unfollow.force_login(unfollow_user)
+
+        response_follow = client_follow.get(
+            reverse('follow_index')
+        )
+        follow_posts_cnt = len(response_follow.context.get('page').object_list)
+        response_unfollow = client_unfollow.get(
+            reverse('follow_index')
+        )
+        unfollow_posts_cnt = len(
+            response_unfollow.context.get('page').object_list
+        )
+
+        Post.objects.create(
+            text='Что-то совсем неожиданное',
+            author=self.user
+        )
+
+        cache.clear()
+        response_follow2 = client_follow.get(
+            reverse('follow_index')
+        )
+        response_unfollow2 = client_unfollow.get(
+            reverse('follow_index')
+        )
+        follow_posts_cnt2 = len(
+            response_follow2.context.get('page').object_list
+        )
+        unfollow_posts_cnt2 = len(
+            response_unfollow2.context.get('page').object_list
+        )
+
+        self.assertEqual(follow_posts_cnt + 1, follow_posts_cnt2)
+        self.assertEqual(unfollow_posts_cnt, unfollow_posts_cnt2)
