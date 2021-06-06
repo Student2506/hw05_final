@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.fields.files import ImageFieldFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from pytils.translit import slugify
 
@@ -18,11 +18,11 @@ from posts.models import Follow, Post
 User = get_user_model()
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class PostPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
