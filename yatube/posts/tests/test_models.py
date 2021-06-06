@@ -1,8 +1,9 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
-from posts.models import Post
-from groups.models import Group
+from django.test import TestCase
 from pytils.translit import slugify
+
+from groups.models import Group
+from posts.models import Post
 
 User = get_user_model()
 

@@ -1,9 +1,10 @@
-from django.core.paginator import Paginator
-from django.contrib.auth.decorators import login_required
-from .models import Post, User, Follow
-from .forms import CommentForm, PostForm
-from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import CommentForm, PostForm
+from .models import Follow, Post, User
 
 
 def index(request):
@@ -131,13 +132,7 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    authors_list = []
-    for follow in request.user.follower.all():
-        authors_list.append(follow.author.pk)
-
-    post_list = Post.objects.filter(
-        author__in=authors_list
-    ).select_related('author')
+    post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)

@@ -1,9 +1,11 @@
-from django.test import Client, TestCase
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from posts.models import Post, Group, Follow
 from http import HTTPStatus
+
+from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
+from django.urls import reverse
 from pytils.translit import slugify
+
+from posts.models import Follow, Group, Post
 
 User = get_user_model()
 
@@ -116,13 +118,15 @@ class PostUrlTest(TestCase):
         url_template_list = {
             reverse('index'): 'index.html',
             reverse('profile',
-                    kwargs={'username': self.user.username}): 'profile.html',
+                    kwargs={'username': self.user.username}):
+            'posts/profile.html',
             reverse('post',
                     kwargs={'username': self.user.username,
-                            'post_id': self.post.pk}): 'post.html',
+                            'post_id': self.post.pk}): 'posts/post.html',
             reverse('post_edit',
                     kwargs={'username': self.user.username,
-                            'post_id': self.post.pk}): 'new_edit_post.html',
+                            'post_id': self.post.pk}):
+            'posts/new_edit_post.html',
             reverse('slug', kwargs={'slug': self.group.slug}): 'group.html',
             reverse('about:author'): 'about/author.html',
             reverse('about:tech'): 'about/tech.html',

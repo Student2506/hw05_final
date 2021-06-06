@@ -2,19 +2,18 @@ import shutil
 import tempfile
 import time
 
+from django import forms
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.fields.files import ImageFieldFile
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
-from django import forms
 from pytils.translit import slugify
-from django.core.cache import cache
 
-
-from posts.models import Post
 from groups.models import Group
+from posts.models import Follow, Post
 
 User = get_user_model()
 
@@ -87,12 +86,12 @@ class PostPagesTests(TestCase):
             reverse('slug', kwargs={'slug': slugify('Новая группа')}):
                 'group.html',
             reverse('profile', kwargs={'username': self.user.username}):
-                'profile.html',
+                'posts/profile.html',
             reverse('post', kwargs={'username': self.user.username,
-                    'post_id': self.post.pk}): 'post.html',
+                    'post_id': self.post.pk}): 'posts/post.html',
             reverse('post_edit', kwargs={'username': self.user.username,
-                    'post_id': self.post.pk}): 'new_edit_post.html',
-            reverse('new_post'): 'new_edit_post.html',
+                    'post_id': self.post.pk}): 'posts/new_edit_post.html',
+            reverse('new_post'): 'posts/new_edit_post.html',
             reverse('follow_index'): 'follow.html',
         }
         for url, template in templates_view.items():
@@ -239,3 +238,22 @@ class PostPagesTests(TestCase):
 
         self.assertEqual(follow_posts_cnt + 1, follow_posts_cnt2)
         self.assertEqual(unfollow_posts_cnt, unfollow_posts_cnt2)
+
+    def test_unfollow_operation(self):
+        """Проверка, что функция отписки работает"""
+        other_user = User.objects.create_user(username='SomeUser')
+        self.authorized_client.get(
+            reverse('profile_follow',
+                    kwargs={'username': other_user.username}),
+            follow=True
+        )
+        cnt = Follow.objects.filter(user=self.user, author=other_user).count()
+        self.authorized_client.get(
+            reverse('profile_unfollow',
+                    kwargs={'username': other_user.username}),
+            follow=True
+        )
+        self.assertEqual(
+            Follow.objects.filter(user=self.user, author=other_user).count(),
+            cnt - 1
+        )

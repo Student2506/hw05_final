@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+from http import HTTPStatus
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,9 +8,8 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from pytils.translit import slugify
 
-from posts.models import Post, User
 from groups.models import Group
-from http import HTTPStatus
+from posts.models import Post, User
 
 
 class PostCreateFormTests(TestCase):
