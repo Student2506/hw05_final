@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from .models import Post, User, Follow
 from .forms import CommentForm, PostForm
 from django.shortcuts import render, redirect, get_object_or_404
+from django.conf import settings
 
 
 def index(request):
     post_list = Post.objects.select_related('author').all()
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
@@ -15,25 +16,25 @@ def index(request):
 
 
 def profile(request, username):
-    user_object = get_object_or_404(User, username=username)
-    post_list = user_object.posts.select_related('author').all()
+    author_object = get_object_or_404(User, username=username)
+    post_list = author_object.posts.select_related('author').all()
 
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     form = CommentForm()
     is_subscribed = False
     if request.user.is_authenticated:
-        for follow in request.user.follower.all():
-            if user_object.username == follow.author.username:
-                is_subscribed = True
-    followers = Follow.objects.filter(author=user_object.pk).count()
-    follows = Follow.objects.filter(user=user_object.pk).count()
+        if request.user.follower.filter(author=author_object).exists():
+            is_subscribed = True
+
+    followers = Follow.objects.filter(author=author_object.pk).count()
+    follows = Follow.objects.filter(user=author_object.pk).count()
 
     return render(
         request,
-        'profile.html',
-        {'username': user_object,
+        'posts/profile.html',
+        {'username': author_object,
          'page': page,
          'form': form,
          'is_comment': False,
@@ -54,7 +55,7 @@ def post_view(request, username, post_id):
     followers = Follow.objects.filter(author=user_object.pk).count()
     follows = Follow.objects.filter(user=user_object.pk).count()
 
-    return render(request, 'post.html',
+    return render(request, 'posts/post.html',
                   {'username': user_object,
                    'post': post_object,
                    'comments': comments,
@@ -66,19 +67,16 @@ def post_view(request, username, post_id):
 
 @login_required
 def new_post(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST,
-                        files=request.FILES or None)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect('index')
-    else:
-        form = PostForm()
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.save()
+        return redirect('index')
 
     return render(request,
-                  'new_edit_post.html',
+                  'posts/new_edit_post.html',
                   {'form': form, 'is_edit': False})
 
 
@@ -99,16 +97,19 @@ def post_edit(request, username, post_id):
                         post_object.id)
 
     return render(request,
-                  'new_edit_post.html',
+                  'posts/new_edit_post.html',
                   {'form': form, 'post': post_object, 'is_edit': True})
 
 
 def page_not_found(request, exception):
-    return render(request, "misc/404.html", {"path": request.path}, status=404)
+    return render(request,
+                  "posts/misc/404.html",
+                  {"path": request.path},
+                  status=404)
 
 
 def server_error(request):
-    return render(request, "misc/500.html", status=500)
+    return render(request, "posts/misc/500.html", status=500)
 
 
 @login_required
@@ -137,7 +138,7 @@ def follow_index(request):
     post_list = Post.objects.filter(
         author__in=authors_list
     ).select_related('author')
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
