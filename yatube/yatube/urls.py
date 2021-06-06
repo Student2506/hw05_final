@@ -23,13 +23,13 @@ handler404 = "posts.views.page_not_found"   # noqa
 handler500 = "posts.views.server_error"     # noqa
 
 urlpatterns = [
+    # import rules from admin app
+    path('admin/', admin.site.urls),
     # import rules from posts
     path("", include("posts.urls")),
     path('group/', include("groups.urls")),
     path('auth/', include("users.urls")),
     path('auth/', include("django.contrib.auth.urls")),
-    # import rules from admin app
-    path('admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:

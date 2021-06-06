@@ -115,16 +115,13 @@ def server_error(request):
 def add_comment(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
     post_object = get_object_or_404(Post, author=post_author, id=post_id)
-    if request.method == 'POST':
-        form = CommentForm(request.POST or None)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.author = request.user
-            comment.post = post_object
-            comment.save()
-            return redirect('post',
-                            post_author.username,
-                            post_object.id)
+
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post_object
+        comment.save()
 
     return redirect('post',
                     post_author.username,
@@ -153,9 +150,7 @@ def profile_follow(request, username):
     author_obj = get_object_or_404(User, username=username)
     if request.user == author_obj:
         return(redirect('profile', username))
-    if not Follow.objects.filter(user=request.user,
-                                 author=author_obj).exists():
-        Follow.objects.create(user=request.user, author=author_obj)
+    request.user.follower.get_or_create(author=author_obj)
 
     return(redirect('profile', username))
 
