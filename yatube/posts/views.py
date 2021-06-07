@@ -8,10 +8,8 @@ from .models import Follow, Post, User
 
 
 def index(request):
-    post_list = Post.objects.select_related(
-        'author', 'group'
-    ).prefetch_related(
-        'comments', 'author'
+    post_list = Post.objects.prefetch_related(
+        'comments', 'author', 'group'
     ).all()
     paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
