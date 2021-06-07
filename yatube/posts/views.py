@@ -89,7 +89,9 @@ def new_post(request):
 
 @login_required
 def post_edit(request, username, post_id):
-    post_object = get_object_or_404(Post, pk=post_id)
+    post_object = get_object_or_404(
+        Post.objects.select_related('author'), pk=post_id
+    )
 
     if post_object.author != request.user:
         return redirect('post', username=username, post_id=post_object.id)
