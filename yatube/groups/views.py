@@ -7,7 +7,9 @@ from .models import Group
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
 
-    post_list = group.posts.all()
+    post_list = group.posts.prefetch_related(
+        'comments', 'author'
+    ).all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
