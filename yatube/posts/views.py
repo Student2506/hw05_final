@@ -22,7 +22,9 @@ def index(request):
 
 def profile(request, username):
     author_object = get_object_or_404(User, username=username)
-    post_list = author_object.posts.select_related('author').all()
+    post_list = author_object.posts.select_related(
+        'author', 'group'
+    ).prefetch_related('comments', 'author').all()
 
     paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
