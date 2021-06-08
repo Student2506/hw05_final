@@ -82,7 +82,7 @@ def new_post(request):
 
     return render(request,
                   'posts/new_edit_post.html',
-                  {'form': form, 'is_edit': False})
+                  {'form': form})
 
 
 @login_required
@@ -105,7 +105,7 @@ def post_edit(request, username, post_id):
 
     return render(request,
                   'posts/new_edit_post.html',
-                  {'form': form, 'post': post_object, 'is_edit': True})
+                  {'form': form, 'post': post_object})
 
 
 def page_not_found(request, exception):

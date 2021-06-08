@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}{% if is_edit %}Редактировать{% else %}Добавить{% endif %} пост{% endblock %}
-{% block header %}{% if is_edit %}Редактировать{% else %}Добавить{% endif %} пост{% endblock %}
+{% block title %}{% if post %}Редактировать{% else %}Добавить{% endif %} пост{% endblock %}
+{% block header %}{% if post %}Редактировать{% else %}Добавить{% endif %} пост{% endblock %}
 {% block content %}
 {% load user_filters %}
 
 <div class="row justify-content-center">
     <div class="col-md-8 p-5">
-        {% if is_edit %}
+        {% if post %}
         <div class="card">
             <div class="card-header">Текущий пост</div>
         <div class="card mb-3 mt-1 shadow-sm">
@@ -29,7 +29,7 @@
         </div>
         {% endif %}
         <div class="card">
-            <div class="card-header">{% if is_edit %}Редактировать{% else %}Добавить{% endif %} пост</div>
+            <div class="card-header">{% if post %}Редактировать{% else %}Добавить{% endif %} пост</div>
             <div class="card-body">
                 
                 {% for error in form.errors %}
@@ -38,7 +38,7 @@
                     </div>
                 {% endfor %}
                 
-                {% if is_edit %}
+                {% if post %}
                 <form method="POST" enctype="multipart/form-data" action="{% url 'post_edit' user.username form.instance.id %}">
                 {% else %}
                 <form method="POST" enctype="multipart/form-data" action="{% url 'new_post' %}">
@@ -58,7 +58,7 @@
                     {% endfor %}
                     <div class="col-md-6 offset-md-4">
                         <button type="submit" class="btn btn-primary">
-                            {% if is_edit %}
+                            {% if post %}
                             Сохранить
                             {% else %}
                             Добавить
