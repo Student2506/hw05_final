@@ -5,8 +5,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('groups', '0001_initial'), ('groups', '0002_auto_20210531_1523')]
-
     initial = True
 
     dependencies = [

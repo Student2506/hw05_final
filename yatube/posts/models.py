@@ -38,8 +38,8 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE,
                              related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    text = models.TextField('Текст комментария',
-                            help_text='Напишите текст комментария')
+    text = models.TextField('Текст комментария.',
+                            help_text='Напишите текст комментария.')
     created = models.DateTimeField('Дата комментария', auto_now_add=True)
 
     class Meta:
