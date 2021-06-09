@@ -8,7 +8,7 @@
         
         {% include "menu.html" with index=True %}
 
-        {% cache 20 index_page with page %}
+        {% cache 20 index_page request.user.username with page %}
         {% for post in page %}
             {% include "post_card.html" with post=post %}
         {% endfor %}
