@@ -22,7 +22,7 @@ def profile(request, username):
     author_object = get_object_or_404(User, username=username)
     post_list = author_object.posts.select_related(
         'author', 'group'
-    ).prefetch_related('comments', 'author').all()
+    ).prefetch_related('comments').all()
 
     paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
@@ -138,8 +138,10 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    post_list = Post.objects.prefetch_related(
-        'comments', 'author', 'group'
+    post_list = Post.objects.select_related(
+        'author', 'group'
+    ).prefetch_related(
+        'comments'
     ).filter(author__following__user=request.user)
     paginator = Paginator(post_list, settings.POSTS_PER_PAGES)
     page_number = request.GET.get('page')
