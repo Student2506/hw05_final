@@ -36,12 +36,12 @@ class PostCreateFormTests(TestCase):
 
     def setUp(self):
         self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
+        self.authorized_client.force_login(PostCreateFormTests.user)
 
     def test_create_post(self):
         """Тестирование формы создания поста"""
         posts_count = Post.objects.count()
-        group_pk = self.testgroup.pk
+        group_pk = PostCreateFormTests.testgroup.pk
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
             b'\x01\x00\x80\x00\x00\x00\x00\x00'
@@ -85,14 +85,14 @@ class PostCreateFormTests(TestCase):
             description='Вторая положительная группа'
         )
 
-        post_pk = self.post.pk
+        post_pk = PostCreateFormTests.post.pk
         form_data = {
             'text': 'Новый тестовый пост123456',
             'group': group_new.pk
         }
         response = self.authorized_client.post(
             reverse('post_edit', kwargs={
-                'username': self.user.username,
+                'username': PostCreateFormTests.user.username,
                 'post_id': post_pk
             }),
             data=form_data,
@@ -103,7 +103,7 @@ class PostCreateFormTests(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertRedirects(response, reverse('post', kwargs={
-            'username': self.user.username,
+            'username': PostCreateFormTests.user.username,
             'post_id': post_pk
         }))
         self.assertEqual(edited_post_object.text, 'Новый тестовый пост123456')

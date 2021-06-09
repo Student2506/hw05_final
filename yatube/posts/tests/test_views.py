@@ -64,7 +64,7 @@ class PostPagesTests(TestCase):
 
     def setUp(self):
         self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
+        self.authorized_client.force_login(PostPagesTests.user)
 
     def test_post_doesnt_appear_on_other_group(self):
         """Проверка, что пост не появляется в пространстве 'Другая группа'"""
@@ -85,12 +85,15 @@ class PostPagesTests(TestCase):
             reverse('about:tech'): 'about/tech.html',
             reverse('slug', kwargs={'slug': slugify('Новая группа')}):
                 'group.html',
-            reverse('profile', kwargs={'username': self.user.username}):
-                'posts/profile.html',
-            reverse('post', kwargs={'username': self.user.username,
-                    'post_id': self.post.pk}): 'posts/post.html',
-            reverse('post_edit', kwargs={'username': self.user.username,
-                    'post_id': self.post.pk}): 'posts/new_edit_post.html',
+            reverse('profile',
+                    kwargs={'username': PostPagesTests.user.username}
+                    ): 'posts/profile.html',
+            reverse('post', kwargs={'username': PostPagesTests.user.username,
+                    'post_id': PostPagesTests.post.pk}): 'posts/post.html',
+            reverse('post_edit',
+                    kwargs={'username': PostPagesTests.user.username,
+                            'post_id': PostPagesTests.post.pk}
+                    ): 'posts/new_edit_post.html',
             reverse('new_post'): 'posts/new_edit_post.html',
             reverse('follow_index'): 'follow.html',
         }
@@ -107,10 +110,15 @@ class PostPagesTests(TestCase):
         pages_to_check = {
             'index': reverse('index'),
             'slug': reverse('slug', kwargs={'slug': slugify('Новая группа')}),
-            'profile': reverse('profile',
-                               kwargs={'username': self.user.username}),
-            'post': reverse('post', kwargs={'username': self.user.username,
-                                            'post_id': self.post.id})
+            'profile': reverse(
+                'profile',
+                kwargs={'username': PostPagesTests.user.username}
+            ),
+            'post': reverse(
+                'post',
+                kwargs={'username': PostPagesTests.user.username,
+                        'post_id': PostPagesTests.post.id}
+            )
         }
         for url, url_reverse in pages_to_check.items():
             with self.subTest(url=url):
@@ -130,7 +138,7 @@ class PostPagesTests(TestCase):
         for i in range(12):
             Post.objects.create(
                 text='Тестирование нового поста111' + str(i),
-                author=self.user
+                author=PostPagesTests.user
             )
         per_pages = [10, 3]
 
@@ -151,8 +159,10 @@ class PostPagesTests(TestCase):
         }
         form_pages = {
             reverse('new_post'): form_fields,
-            reverse('post_edit', kwargs={'username': self.user.username,
-                    'post_id': self.post.pk}): form_fields
+            reverse(
+                'post_edit', kwargs={'username': PostPagesTests.user.username,
+                                     'post_id': PostPagesTests.post.pk}
+            ): form_fields
         }
         for url, fields in form_pages.items():
             response = self.authorized_client.get(url)
@@ -166,7 +176,7 @@ class PostPagesTests(TestCase):
         for i in range(12):
             Post.objects.create(
                 text='Тестирование нового поста111' + str(i),
-                author=self.user
+                author=PostPagesTests.user
             )
             last_post = 'Тестирование нового поста111' + str(i)
 
@@ -188,7 +198,7 @@ class PostPagesTests(TestCase):
                 caching_test = 'Кэш в действии'
                 Post.objects.create(
                     text=caching_test,
-                    author=self.user
+                    author=PostPagesTests.user
                 )
                 response = self.authorized_client.get(url_reverse)
                 self.assertFalse(caching_test.encode() in response.content)
@@ -201,7 +211,7 @@ class PostPagesTests(TestCase):
         client_follow = Client()
         client_follow.force_login(follow_user)
         client_follow.get(reverse('profile_follow',
-                          kwargs={'username': self.user.username}),
+                          kwargs={'username': PostPagesTests.user.username}),
                           follow=True)
         client_unfollow = Client()
         client_unfollow.force_login(unfollow_user)
@@ -219,7 +229,7 @@ class PostPagesTests(TestCase):
 
         Post.objects.create(
             text='Что-то совсем неожиданное',
-            author=self.user
+            author=PostPagesTests.user
         )
 
         cache.clear()
@@ -247,13 +257,18 @@ class PostPagesTests(TestCase):
                     kwargs={'username': other_user.username}),
             follow=True
         )
-        cnt = Follow.objects.filter(user=self.user, author=other_user).count()
+        cnt = Follow.objects.filter(
+            user=PostPagesTests.user,
+            author=other_user
+        ).count()
         self.authorized_client.get(
             reverse('profile_unfollow',
                     kwargs={'username': other_user.username}),
             follow=True
         )
         self.assertEqual(
-            Follow.objects.filter(user=self.user, author=other_user).count(),
+            Follow.objects.filter(
+                user=PostPagesTests.user, author=other_user
+            ).count(),
             cnt - 1
         )

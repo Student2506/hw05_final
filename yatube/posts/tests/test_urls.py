@@ -31,10 +31,10 @@ class PostUrlTest(TestCase):
         self.guest_client = Client()
 
         self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
+        self.authorized_client.force_login(PostUrlTest.user)
 
         self.other_authorized_client = Client()
-        self.other_authorized_client.force_login(self.other_user)
+        self.other_authorized_client.force_login(PostUrlTest.other_user)
 
     def test_post_edit_url_redirect_non_owner(self):
         """Страница /<profile>/<post-id>/edit/ корректно перенаправляет
@@ -42,16 +42,16 @@ class PostUrlTest(TestCase):
         """
         response = self.other_authorized_client.get(reverse(
             'post_edit',
-            kwargs={'username': self.user.username,
-                    'post_id': self.post.pk}
+            kwargs={'username': PostUrlTest.user.username,
+                    'post_id': PostUrlTest.post.pk}
         ),
             follow=True
         )
         self.assertRedirects(
             response,
             reverse('post',
-                    kwargs={'username': self.user.username,
-                            'post_id': self.post.id})
+                    kwargs={'username': PostUrlTest.user.username,
+                            'post_id': PostUrlTest.post.id})
         )
 
     def test_public_urls_at_desired_locations(self):
@@ -61,8 +61,9 @@ class PostUrlTest(TestCase):
             'about:author': {},
             'about:tech': {},
             'slug': {'slug': slugify('Новая группа')},
-            'profile': {'username': self.user.username},
-            'post': {'username': self.user.username, 'post_id': self.post.pk}
+            'profile': {'username': PostUrlTest.user.username},
+            'post': {'username': PostUrlTest.user.username,
+                     'post_id': PostUrlTest.post.pk}
         }
 
         for url_reverse, kwargs in anon_users_url.items():
@@ -80,12 +81,14 @@ class PostUrlTest(TestCase):
         """Проверка работоспособности URL для "залогиненнных"."""
         authorized_users_url = {
             'post_edit': {
-                'username': self.user.username, 'post_id': self.post.pk
+                'username': PostUrlTest.user.username,
+                'post_id': PostUrlTest.post.pk
             },
             'new_post': {},
             'follow_index': {},
             'add_comment': {
-                'username': self.user.username, 'post_id': self.post.pk
+                'username': PostUrlTest.user.username,
+                'post_id': PostUrlTest.post.pk
             }
         }
 
@@ -106,8 +109,9 @@ class PostUrlTest(TestCase):
                 if url_reverse == 'add_comment':
                     self.assertRedirects(
                         response, reverse(
-                            'post', kwargs={'username': self.user.username,
-                                            'post_id': self.post.pk}
+                            'post',
+                            kwargs={'username': PostUrlTest.user.username,
+                                    'post_id': PostUrlTest.post.pk}
                         )
                     )
                 else:
@@ -118,16 +122,18 @@ class PostUrlTest(TestCase):
         url_template_list = {
             reverse('index'): 'index.html',
             reverse('profile',
-                    kwargs={'username': self.user.username}):
+                    kwargs={'username': PostUrlTest.user.username}):
             'posts/profile.html',
             reverse('post',
-                    kwargs={'username': self.user.username,
-                            'post_id': self.post.pk}): 'posts/post.html',
+                    kwargs={'username': PostUrlTest.user.username,
+                            'post_id': PostUrlTest.post.pk}):
+                        'posts/post.html',
             reverse('post_edit',
-                    kwargs={'username': self.user.username,
-                            'post_id': self.post.pk}):
+                    kwargs={'username': PostUrlTest.user.username,
+                            'post_id': PostUrlTest.post.pk}):
             'posts/new_edit_post.html',
-            reverse('slug', kwargs={'slug': self.group.slug}): 'group.html',
+            reverse('slug', kwargs={'slug': PostUrlTest.group.slug}):
+                        'group.html',
             reverse('about:author'): 'about/author.html',
             reverse('about:tech'): 'about/tech.html',
             reverse('follow_index'): 'follow.html'
@@ -156,34 +162,39 @@ class PostUrlTest(TestCase):
 
         url_list = {
             'follow': reverse('profile_follow',
-                              kwargs={'username': self.other_user.username}),
+                              kwargs={'username':
+                                      PostUrlTest.other_user.username}),
             'unfollow': reverse('profile_unfollow',
-                                kwargs={'username': self.other_user.username})
+                                kwargs={'username':
+                                        PostUrlTest.other_user.username})
         }
 
         for operation, url_reverse in url_list.items():
             with self.subTest(url_reverse=url_reverse, operation=operation):
-                follow_cnt = Follow.objects.filter(user=self.user).count()
+                follow_cnt = Follow.objects.filter(
+                    user=PostUrlTest.user
+                ).count()
                 response = self.authorized_client.get(url_reverse, follow=True)
                 if operation == 'follow':
                     self.assertEqual(
                         Follow.objects.filter(
-                            author=self.other_user,
-                            user=self.user
+                            author=PostUrlTest.other_user,
+                            user=PostUrlTest.user
                         ).count(),
                         follow_cnt + 1
                     )
                 elif operation == 'unfollow':
                     self.assertEqual(
                         Follow.objects.filter(
-                            author=self.other_user,
-                            user=self.user
+                            author=PostUrlTest.other_user,
+                            user=PostUrlTest.user
                         ).count(),
                         follow_cnt - 1
                     )
                 self.assertRedirects(
                     response,
                     reverse('profile',
-                            kwargs={'username': self.other_user.username}
+                            kwargs={'username':
+                                    PostUrlTest.other_user.username}
                             )
                 )

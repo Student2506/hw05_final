@@ -3,7 +3,7 @@ from django.test import TestCase
 from pytils.translit import slugify
 
 from groups.models import Group
-from posts.models import Post
+from posts.models import Post, Comment
 
 User = get_user_model()
 
@@ -22,25 +22,30 @@ class PostModelTest(TestCase):
             author=cls.testuser,
             group=cls.group
         )
+        cls.comment = Comment.objects.create(
+            post=cls.post,
+            author=cls.testuser,
+            text='Это тестовый комментарий'
+        )
 
     def test_attributes(self):
         """Проверка наличия атрибутов"""
         messages = {
-            self.post._meta.get_field('text').help_text:
+            PostModelTest.post._meta.get_field('text').help_text:
             'Напишите содержание поста',
-            self.post._meta.get_field('text').verbose_name:
+            PostModelTest.post._meta.get_field('text').verbose_name:
             'Текст поста',
-            self.post._meta.get_field('pub_date').verbose_name:
+            PostModelTest.post._meta.get_field('pub_date').verbose_name:
             'Дата публикации',
-            self.group._meta.get_field('title').help_text:
+            PostModelTest.group._meta.get_field('title').help_text:
             'Напишите имя сообщества',
-            self.group._meta.get_field('title').verbose_name:
+            PostModelTest.group._meta.get_field('title').verbose_name:
             'Наименование сообщества',
-            self.group._meta.get_field('slug').help_text:
+            PostModelTest.group._meta.get_field('slug').help_text:
             'Slug сообщества, заполняется автоматом',
-            self.group._meta.get_field('slug').verbose_name:
+            PostModelTest.group._meta.get_field('slug').verbose_name:
             'Slug сообщества',
-            self.group._meta.get_field('description').verbose_name:
+            PostModelTest.group._meta.get_field('description').verbose_name:
             'Описание сообщества!',
 
         }
@@ -51,8 +56,9 @@ class PostModelTest(TestCase):
     def test_string_respresntation(self):
         """Проверка преобразования"""
         strings = {
-            str(self.post): 'Тестирование но',
-            str(self.group): 'Новая группа',
+            str(PostModelTest.post): 'Тестирование но',
+            str(PostModelTest.group): 'Новая группа',
+            str(PostModelTest.comment): 'Это тестовый комментарий'[:15],
         }
         for model, represntation in strings.items():
             with self.subTest(model=model):
