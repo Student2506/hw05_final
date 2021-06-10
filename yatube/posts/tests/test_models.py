@@ -1,9 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from pytils.translit import slugify
-
 from groups.models import Group
 from posts.models import Comment, Post
+from pytils.translit import slugify
 
 User = get_user_model()
 

@@ -10,10 +10,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.fields.files import ImageFieldFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from pytils.translit import slugify
-
 from groups.models import Group
 from posts.models import Follow, Post
+from pytils.translit import slugify
 
 User = get_user_model()
 

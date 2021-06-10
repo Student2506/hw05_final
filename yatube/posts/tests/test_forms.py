@@ -6,10 +6,9 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from pytils.translit import slugify
-
 from groups.models import Group
 from posts.models import Post, User
+from pytils.translit import slugify
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

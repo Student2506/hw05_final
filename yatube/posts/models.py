@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.deletion import DO_NOTHING
-
 from groups.models import Group
 
 User = get_user_model()
