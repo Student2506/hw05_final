@@ -8,7 +8,6 @@ from PIL import Image
 from posts.models import Post
 
 
-
 class TestNewView:
 
     @pytest.mark.django_db(transaction=True)

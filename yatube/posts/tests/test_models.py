@@ -3,7 +3,7 @@ from django.test import TestCase
 from pytils.translit import slugify
 
 from groups.models import Group
-from posts.models import Post, Comment
+from posts.models import Comment, Post
 
 User = get_user_model()
 
