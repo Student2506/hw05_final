@@ -115,7 +115,7 @@ def page_not_found(request, exception):
                   status=404)
 
 
-def server_error(request):
+def server_error(request):      # pragma: no cover
     return render(request, "posts/misc/500.html", status=500)
 
 

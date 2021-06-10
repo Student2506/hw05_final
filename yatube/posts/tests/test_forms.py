@@ -115,3 +115,28 @@ class PostCreateFormTests(TestCase):
         self.assertEqual(
             Post.objects.count(), posts_count
         )
+
+    def test_comments_form(self):
+        """Тестирование создания комментариев."""
+        form_data = {
+            'text': 'Новый комментарий'
+        }
+        response = self.authorized_client.post(
+            reverse('add_comment',
+                    kwargs={
+                        'username': PostCreateFormTests.user.username,
+                        'post_id': PostCreateFormTests.post.id
+                    }),
+            data=form_data,
+            follow=True
+        )
+        last_comment = PostCreateFormTests.post.comments.last()
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertRedirects(response, reverse(
+            'post', kwargs={
+                'username': PostCreateFormTests.user.username,
+                'post_id': PostCreateFormTests.post.id
+            }
+        ))
+        self.assertEqual(last_comment.text, 'Новый комментарий')
+        self.assertEqual(last_comment.author, PostCreateFormTests.user)

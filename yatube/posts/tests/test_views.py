@@ -72,7 +72,7 @@ class PostPagesTests(TestCase):
             reverse('slug', kwargs={'slug': slugify('Другая группа')})
         )
         if(len(response.context.get('page').object_list) > 0):
-            self.assertNotEqual(
+            self.assertNotEqual(        # pragma: no cover
                 response.context.get('page').object_list[0].text,
                 'Тестирование нового поста111'
             )
@@ -271,4 +271,37 @@ class PostPagesTests(TestCase):
                 user=PostPagesTests.user, author=other_user
             ).count(),
             cnt - 1
+        )
+
+    def test_follow_operation(self):
+        """Проверяем работу функции follow"""
+        other_user = User.objects.create_user(username='SomeUser')
+        cnt = other_user.follower.count()
+        response = self.authorized_client.get(
+            reverse('profile_follow',
+                    kwargs={'username': other_user.username}),
+            follow=True
+        )
+        self.assertRedirects(response, reverse(
+            'profile', kwargs={'username': other_user.username}
+        ))
+        self.assertEqual(
+            cnt + 1, Follow.objects.filter(
+                user=PostPagesTests.user, author=other_user
+            ).count()
+        )
+
+        cnt_author = PostPagesTests.user.following.count()
+        response = self.authorized_client.get(
+            reverse('profile_follow',
+                    kwargs={'username': PostPagesTests.user.username}),
+            follow=True
+        )
+        self.assertRedirects(response, reverse(
+            'profile', kwargs={'username': PostPagesTests.user.username}
+        ))
+        self.assertEqual(
+            cnt_author, Follow.objects.filter(
+                user=PostPagesTests.user, author=PostPagesTests.user
+            ).count()
         )
