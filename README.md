@@ -19,4 +19,4 @@ Django 2.2.19
     python manage.py runserver
 ```
 ### Авторы
-Павел
+Автор: https://t.me/Student2506
